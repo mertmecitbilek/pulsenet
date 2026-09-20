@@ -1,19 +1,19 @@
-# PulseNet 🚀
+# PulseNet
 
-> **Açık kaynaklı, sistem ve ağ izleme platformu.**
-> FastAPI + Next.js + PostgreSQL + Docker mimarisiyle sıfırdan inşa edildi.
+Sunucularınızı, web sitelerinizi ve yerel ağınızdaki cihazları tek bir arayüzden izleyen,
+kendi makinenizde çalıştırdığınız bir izleme aracı.
 
-Tek bir arayüzden üç farklı şeyi izler:
+Üç şeyi birden yapar:
 
 1. **Ev/ofis ağındaki cihazlar** — modem, yazıcı, NAS, telefon ayakta mı? (ping / TCP port)
-2. **Web siteleri ve servisler** — siten cevap veriyor mu, kaç ms'de? (HTTP + ping)
-3. **Sunucu donanımı** — CPU, RAM, disk, ağ trafiği; kendi belirlediğin eşik aşılınca alarm (agent)
+2. **Web siteleri ve servisler** — site cevap veriyor mu, kaç ms'de? (HTTP + ping)
+3. **Sunucu donanımı** — CPU, RAM, disk, ağ trafiği; belirlediğiniz eşik aşılınca alarm (agent)
 
-Bir sorun çıktığında arayüzde anında bildirim alırsın, sorun düzelince de "geri geldi" bildirimi gelir.
+Bir sorun çıktığında arayüzde bildirim belirir, sorun düzeldiğinde de haber verilir.
 
 ---
 
-## ✨ Özellikler
+## Özellikler
 
 | Özellik | Detay |
 |---|---|
@@ -24,12 +24,12 @@ Bir sorun çıktığında arayüzde anında bildirim alırsın, sorun düzelince
 | **Bildirimler** | Anlık ekran uyarısı, zil menüsü ve okunmamış sayacı, isteğe bağlı masaüstü bildirimi |
 | **Acknowledge** | Alarmı üstlenme, not bırakma, kim ne zaman üstlendi kaydı |
 | **Cihaz Şablonları** | Ev cihazı / Web sitesi / Sunucu şablonlarıyla tek adımda ekleme |
-| **Tek Kullanıcılı** | İlk hesap açıldıktan sonra kayıt otomatik kapanır — kendi kurulumunuz size ait kalır |
-| **Docker-First** | Tek komutla (`docker compose up --build`) tam ortam |
+| **Tek Kullanıcılı** | İlk hesap açıldıktan sonra kayıt otomatik kapanır |
+| **Kurulum** | Tek komutla ayağa kalkar: `docker compose up --build` |
 
 ---
 
-## 🏗️ Mimari
+## Mimari
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
@@ -61,7 +61,7 @@ Donanım metrikleri için ilgili sunucuya **agent** kurulur.
 
 ---
 
-## 🚀 Hızlı Başlangıç
+## Hızlı Başlangıç
 
 ### Gereksinimler
 - Docker ≥ 24, Docker Compose v2
@@ -116,7 +116,7 @@ docker compose exec db psql -U pulsenet -d pulsenet -c "DELETE FROM users;"
 
 ---
 
-## 📡 Kullanım
+## Kullanım
 
 ### Senaryo 1 — Evdeki cihazlar (modem, yazıcı, NAS)
 
@@ -147,7 +147,7 @@ cihazlar için bu tolerans bilinçli olarak yüksek tutulmuştur.
 HTTP + ping kontrolleri birlikte oluşur. HTTP kontrolünde varsayılan olarak 2xx/3xx başarılı sayılır;
 istenirse tam bir durum kodu (ör. `200`) beklenebilir.
 
-### Senaryo 3 — Sunucu donanımı ve kendi eşiğin
+### Senaryo 3 — Sunucu donanımı ve alarm eşikleri
 
 1. `Devices → Add Device → Server` ile sunucuyu ekleyin (ping + port kontrolü oluşur).
 2. Sunucuya **agent**'ı kurun (aşağıya bakın) — CPU/RAM/Disk/ağ metrikleri akmaya başlar.
@@ -158,7 +158,7 @@ istenirse tam bir durum kodu (ör. `200`) beklenebilir.
 
 ---
 
-## 🤖 Agent Kurulumu (uzak sunucu)
+## Agent Kurulumu (uzak sunucu)
 
 Agent yalnızca donanım metrikleri için gereklidir. Ayakta olup olmadığını görmek için agent'a gerek yoktur.
 
@@ -212,7 +212,7 @@ mevcut kaydın IP'sini günceller. Belirli bir host kaydına bağlamak için `AG
 
 ---
 
-## ⚙️ Konfigürasyon
+## Konfigürasyon
 
 `.env` dosyasındaki değişkenler:
 
@@ -235,7 +235,7 @@ sonrasında her cihaz için arayüzden ayrı ayrı değiştirilir.
 
 ---
 
-## 🔌 API Referansı
+## API Referansı
 
 ### Auth
 ```
@@ -288,7 +288,7 @@ Geçersizse bağlantı `4401` ile kapanır. Yalnızca yeni metrik geldiğinde pu
 
 ---
 
-## 🗃️ Veri Modeli
+## Veri Modeli
 
 | Tablo | İçerik |
 |---|---|
@@ -311,7 +311,7 @@ Geçersizse bağlantı `4401` ile kapanır. Yalnızca yeni metrik geldiğinde pu
 
 ---
 
-## 🔒 Güvenlik
+## Güvenlik
 
 | Konu | Durum |
 |---|---|
@@ -327,16 +327,17 @@ Geçersizse bağlantı `4401` ile kapanır. Yalnızca yeni metrik geldiğinde pu
 | **Komut enjeksiyonu** | Ping hedefleri hostname/IP biçimine göre doğrulanır; kabuk kullanılmaz (`create_subprocess_exec`) |
 | **SQL enjeksiyonu** | Tüm sorgular SQLAlchemy ORM üzerinden parametrelidir |
 
-### Üretime almadan önce
+### Sunucuya kurarken
 
-- **HTTPS yok.** Ters proxy (Nginx / Caddy / Traefik) arkasına alın; JWT düz HTTP üzerinden taşınmamalıdır.
-- `/docs` ve `/redoc` kimlik doğrulaması istemez (uç noktaların kendisi korunur). Kapatmak için `FastAPI(docs_url=None)`.
-- HTTP kontrolleri backend'in ağından yapılır; iç ağa istek atılabileceği için (SSRF) yalnızca admin oluşturabilir.
-- Kaba kuvvet sayacı bellektedir: süreç yeniden başlayınca sıfırlanır, çok replikalı kurulumda paylaşılmaz.
+Uygulama TLS sonlandırması yapmaz. Yerel ağ dışına açacaksanız Nginx, Caddy veya Traefik gibi
+bir ters proxy arkasına alıp HTTPS ile sunun; aksi halde JWT'ler düz metin olarak taşınır.
+
+API dokümantasyonu (`/docs`, `/redoc`) kimlik doğrulaması istemez. Uç noktaların kendisi
+korunur, ancak şemayı da gizlemek isterseniz `FastAPI(docs_url=None, redoc_url=None)` yapın.
 
 ---
 
-## 🛠️ Geliştirme
+## Geliştirme
 
 ```bash
 # Backend
@@ -359,7 +360,7 @@ docker compose exec backend python -m alembic upgrade head
 
 ---
 
-## ⚠️ Bilinen Sınırlar
+## Bilinen Sınırlar
 
 - **macOS + Docker Desktop:** Yerel ağdaki cihazlara erişmek için
   *Sistem Ayarları → Gizlilik ve Güvenlik → Yerel Ağ* altında Docker Desktop'a izin verilmelidir.
@@ -375,7 +376,7 @@ docker compose exec backend python -m alembic upgrade head
 
 ---
 
-## 📋 Teknoloji Yığını
+## Teknoloji Yığını
 
 | Katman | Teknoloji |
 |---|---|
@@ -390,6 +391,6 @@ docker compose exec backend python -m alembic upgrade head
 
 ---
 
-## 📄 Lisans
+## Lisans
 
 MIT License — Açık kaynak, ücretsiz kullanım.
