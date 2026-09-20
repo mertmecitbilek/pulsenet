@@ -367,12 +367,10 @@ docker compose exec backend python -m alembic upgrade head
 - **7/24 izleme:** PulseNet yalnızca çalıştığı makine açıkken izler. Sürekli izleme için
   hep açık bir cihazda (Raspberry Pi, sunucu) çalıştırılmalıdır.
 - **Bildirimler tarayıcı tarafındadır.** Sekme kapalıyken bildirim gelmez;
-  e-posta/Telegram entegrasyonu henüz yoktur.
+  e-posta/Telegram entegrasyonu henüz yok.
 - **Uzak ağlar:** Servis kontrolleri backend'in bulunduğu ağdan yapılır. Başka bir evin/ofisin
-  yerel cihazlarını izlemek için oraya bir "proxy" bileşeni gerekir (Zabbix Proxy muadili) — henüz yok.
-- **Otomatik test yoktur.**
-- Roller admin/viewer ile sınırlıdır; kullanıcı bazlı cihaz izolasyonu (çok kiracılı yapı) yoktur.
-- **Parola sıfırlama akışı yoktur** (e-posta gönderimi gerektirir); yukarıdaki veritabanı komutu kullanılır.
+  yerel cihazlarını izlemek için oraya bir "proxy" bileşeni gerekir.
+- Roller admin/viewer ile sınırlıdır; kullanıcı bazlı cihaz izolasyonu yoktur.
 - JWT iptal listesi yoktur: çıkış yapmak token'ı istemciden siler, token süresi (24 saat) dolana kadar teknik olarak geçerli kalır.
 
 ---
