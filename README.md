@@ -74,8 +74,6 @@ openssl rand -base64 36   # SECRET_KEY için üret, .env'e yaz
 openssl rand -base64 24   # AGENT_API_KEY için üret, .env'e yaz
 ```
 
-> `.env` gerçek sırları tutar ve `.gitignore` ile dışarıda bırakılmıştır — asla commit etmeyin.
-
 ### 2. Başlat
 
 ```bash
