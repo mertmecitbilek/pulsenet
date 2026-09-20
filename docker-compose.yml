@@ -1,0 +1,120 @@
+# ============================================================
+# PulseNet — Docker Compose
+# Usage: docker compose up --build
+# ============================================================
+
+networks:
+  pulsenet-net:
+    driver: bridge
+
+volumes:
+  pgdata:          # Persistent PostgreSQL data
+  agent-logs:      # Optional: agent log output
+
+services:
+  # ----------------------------------------------------------
+  # 1. PostgreSQL 16 Database
+  # ----------------------------------------------------------
+  db:
+    image: postgres:16-alpine
+    container_name: pulsenet-db
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      # Bound to loopback: the database is only reachable from this machine.
+      - "127.0.0.1:5432:5432"
+    networks:
+      - pulsenet-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ----------------------------------------------------------
+  # 2. FastAPI Backend
+  # ----------------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: pulsenet-backend
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      ENVIRONMENT: ${ENVIRONMENT}
+      SECRET_KEY: ${SECRET_KEY}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+      ALERT_CPU_THRESHOLD: ${ALERT_CPU_THRESHOLD}
+      ALERT_MEMORY_THRESHOLD: ${ALERT_MEMORY_THRESHOLD}
+      ALERT_DISK_THRESHOLD: ${ALERT_DISK_THRESHOLD}
+      AGENT_API_KEY: ${AGENT_API_KEY:-pulsenet-agent-secret-key}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - pulsenet-net
+    volumes:
+      - ./backend/app:/app/app   # Hot-reload during development
+
+  # ----------------------------------------------------------
+  # 3. psutil Metric Collector Agent
+  # ----------------------------------------------------------
+  agent:
+    build:
+      context: ./agent
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    # Fixed hostname: the agent registers under it, so recreating the
+    # container reuses the same host record instead of adding a new one.
+    hostname: pulsenet-agent
+    env_file: .env
+    environment:
+      AGENT_API_KEY: ${AGENT_API_KEY:-pulsenet-agent-secret-key}
+      AGENT_BACKEND_URL: ${AGENT_BACKEND_URL}
+      AGENT_COLLECT_INTERVAL: ${AGENT_COLLECT_INTERVAL}
+      AGENT_HOST_ID: ${AGENT_HOST_ID}
+    depends_on:
+      - backend
+    networks:
+      - pulsenet-net
+    volumes:
+      - agent-logs:/app/logs
+      # Uncomment on Linux hosts for real system-level metrics:
+      # - /proc:/host/proc:ro
+      # - /sys:/host/sys:ro
+    privileged: false
+    # pid: "host"  # Uncomment on Linux hosts to share the host PID namespace
+
+  # ----------------------------------------------------------
+  # 4. Next.js Frontend
+  # ----------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      # NEXT_PUBLIC_* are baked into the browser bundle at build time.
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+        NEXT_PUBLIC_WS_URL: ${NEXT_PUBLIC_WS_URL:-ws://localhost:8000}
+    container_name: pulsenet-frontend
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+      NEXT_PUBLIC_WS_URL: ${NEXT_PUBLIC_WS_URL}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - pulsenet-net

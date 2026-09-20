@@ -1,0 +1,34 @@
+# ============================================================
+# PulseNet Backend — Python Dependencies
+# ============================================================
+
+# Web framework & server
+fastapi==0.111.0
+uvicorn[standard]==0.29.0
+
+# Async PostgreSQL driver + SQLAlchemy
+sqlalchemy[asyncio]==2.0.30
+asyncpg==0.29.0
+
+# Database migrations
+alembic==1.13.1
+
+# Settings management
+pydantic-settings==2.2.1
+pydantic==2.7.1
+python-dotenv==1.0.1
+
+# HTTP utilities
+httpx==0.27.0
+
+# System metrics (for optional local collection inside backend)
+psutil==5.9.8
+
+# Date utilities
+python-dateutil==2.9.0
+
+# Authentication — JWT tokens & password hashing
+python-jose[cryptography]==3.3.0
+passlib==1.7.4
+bcrypt==4.0.1
+python-multipart==0.0.9
