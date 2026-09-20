@@ -393,4 +393,4 @@ docker compose exec backend python -m alembic upgrade head
 
 ## Lisans
 
-MIT License — Açık kaynak, ücretsiz kullanım.
+MIT — ayrıntılar için [LICENSE](LICENSE) dosyasına bakın.
