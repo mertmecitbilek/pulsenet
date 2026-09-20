@@ -1,6 +1,6 @@
 # PulseNet 🚀
 
-> **Açık kaynaklı, Zabbix esinli sistem ve ağ izleme platformu.**
+> **Açık kaynaklı, sistem ve ağ izleme platformu.**
 > FastAPI + Next.js + PostgreSQL + Docker mimarisiyle sıfırdan inşa edildi.
 
 Tek bir arayüzden üç farklı şeyi izler:
