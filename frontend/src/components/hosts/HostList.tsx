@@ -76,17 +76,19 @@ export function HostList({ hosts, onDelete, isLoading, checkSummary }: HostListP
               className="group transition-colors hover:bg-surface-hover"
             >
               <td className="px-4 py-4">
-                <div className="flex items-center gap-3">
+                <Link href={`/hosts/${host.id}`} className="flex items-center gap-3 group/name">
                   <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-500/10">
                     <Server className="h-4 w-4 text-brand-400" />
                   </div>
                   <div>
-                    <p className="font-medium text-white">{host.name}</p>
+                    <p className="font-medium text-white group-hover/name:text-brand-400 transition-colors">
+                      {host.name}
+                    </p>
                     {host.description && (
                       <p className="text-xs text-surface-muted truncate max-w-[180px]">{host.description}</p>
                     )}
                   </div>
-                </div>
+                </Link>
               </td>
               <td className="px-4 py-4 font-mono text-surface-muted">{host.ip_address}</td>
               <td className="px-4 py-4 text-surface-muted">{host.os ?? "—"}</td>
