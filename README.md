@@ -337,24 +337,37 @@ korunur, ancak şemayı da gizlemek isterseniz `FastAPI(docs_url=None, redoc_url
 
 ## Geliştirme
 
-```bash
-# Backend
-cd backend && pip install -r requirements.txt
-uvicorn app.main:app --reload
+Kod üzerinde çalışırken servisleri Docker dışında çalıştırmak işi hızlandırır: değişiklik
+imaj yeniden derlenmeden anında yansır. Veritabanı Docker'da kalmaya devam eder.
 
-# Frontend
+Adreslerin Docker ağı içindeki isimlerle (`db`, `backend`) değil `localhost` ile verilmesi
+gerektiğine dikkat edin; aksi halde bağlantı kurulamaz.
+
+```bash
+# Veritabanı ayakta olsun
+docker compose up -d db
+
+# Backend — parola .env içindeki POSTGRES_PASSWORD değeridir
+cd backend && pip install -r requirements.txt
+DATABASE_URL=postgresql+asyncpg://pulsenet:PAROLA@localhost:5432/pulsenet \
+  uvicorn app.main:app --reload
+
+# Frontend — backend'in çalışıyor olması gerekir
 cd frontend && npm install && npm run dev
 
-# Agent
-cd agent && pip install -r requirements.txt && python -m agent.main
+# Agent — anahtar .env içindeki AGENT_API_KEY değeridir
+cd agent && pip install -r requirements.txt
+AGENT_BACKEND_URL=http://localhost:8000 AGENT_API_KEY=ANAHTAR python -m agent.main
 ```
 
-Yeni migration:
+Veritabanı şemasını değiştirdiğinizde (yeni kolon, yeni tablo) migration üretin:
 
 ```bash
 docker compose exec backend python -m alembic revision -m "açıklama"
 docker compose exec backend python -m alembic upgrade head
 ```
+
+Oluşan dosya `backend/alembic/versions/` altına düşer; commit etmeyi unutmayın.
 
 ---
 

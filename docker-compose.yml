@@ -64,7 +64,8 @@ services:
     networks:
       - pulsenet-net
     volumes:
-      - ./backend/app:/app/app   # Hot-reload during development
+      - ./backend/app:/app/app           # Hot-reload during development
+      - ./backend/alembic:/app/alembic   # Generated migrations land on the host
 
   # ----------------------------------------------------------
   # 3. psutil Metric Collector Agent
